@@ -3,6 +3,9 @@ using UnityEngine.InputSystem;
 
 public class GameInput : MonoBehaviour
 {
+    private float yaw = 0f;
+    private float pitch = 0f;
+    
     [SerializeField]
     private float moveByKeySpeed = 4f;
     
@@ -37,55 +40,47 @@ public class GameInput : MonoBehaviour
     {
         timeMovingStarted = Time.time;
         buttonCameraForward = value.isPressed;
-        Game.Instance.MoveActive = true;
-        Game.Instance.LookAroundActive = true;
+        CameraSetMoveMode();
     }
 
     private void OnCameraBack(InputValue value)
     {
         timeMovingStarted = Time.time;
         buttonCameraBack = value.isPressed;
-        Game.Instance.MoveActive = true;
-        Game.Instance.LookAroundActive = true;
+        CameraSetMoveMode();
     }
 
     private void OnCameraLeft(InputValue value)
     {
         timeMovingStarted = Time.time;
         buttonCameraLeft = value.isPressed;
-        Game.Instance.MoveActive = true;
-        Game.Instance.LookAroundActive = true;
+        CameraSetMoveMode();
     }
 
     private void OnCameraRight(InputValue value)
     {
         timeMovingStarted = Time.time;
         buttonCameraRight = value.isPressed;
-        Game.Instance.MoveActive = true;
-        Game.Instance.LookAroundActive = true;
+        CameraSetMoveMode();
     }
 
     private void OnCameraUp(InputValue value)
     {
         timeMovingStarted = Time.time;
         buttonCameraUp = value.isPressed;
-        Game.Instance.MoveActive = true;
-        Game.Instance.LookAroundActive = true;
+        CameraSetMoveMode();
     }
 
     private void OnCameraDown(InputValue value)
     {
         timeMovingStarted = Time.time;
         buttonCameraDown = value.isPressed;
-        Game.Instance.MoveActive = true;
-        Game.Instance.LookAroundActive = true;
+        CameraSetMoveMode();
     }
-
 
     private void OnCameraLookAround(InputValue value)
     {
         buttonCameraLookAround = value.isPressed;
-        Game.Instance.LookAroundActive = true;
     }
 
     private void CameraSetMoveMode()
@@ -93,7 +88,7 @@ public class GameInput : MonoBehaviour
         if (Game.Instance.CameraPositionObject != null)
         {
             Game.Instance.CameraPositionObject = null;
-            Game.Instance.ToggleCameraPosition.enabled = false;
+            Game.Instance.ToggleCameraPosition.isOn = false;
         }
     }
 
@@ -135,17 +130,17 @@ public class GameInput : MonoBehaviour
         // Look around when Mouse is not pressed
         if (buttonCameraLookAround)
         {
-            if (Game.Instance.CameraLookAtObject != null)
-            {
-                Game.Instance.CameraLookAtObject = null;
-                Game.Instance.ToggleCameraLookAt.enabled = false;
-            }
-            Game.Instance.CameraRotationX += lookSpeed * look.y;
-            Game.Instance.CameraRotationY -= lookSpeed * look.x;
+            yaw += lookSpeed * look.x;
+            pitch -= lookSpeed * look.y;
+
+            Game.Instance.VcamMainCamera.transform.eulerAngles = new Vector3(pitch, yaw, 0f);
+            
+//            Game.Instance.CameraRotationX += lookSpeed * look.y;
+//            Game.Instance.CameraRotationY -= lookSpeed * look.x;
         }
 
         // Zoom in and out with Mouse Wheel
         // TODO : should change camera field of view
-        transform.Translate(0, 0, zoom * zoomSpeed, Space.Self);
+   //     transform.Translate(0, 0, zoom * zoomSpeed, Space.Self);
     }
 }

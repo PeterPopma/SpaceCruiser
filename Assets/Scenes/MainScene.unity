@@ -1633,7 +1633,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 481672428}
         m_TargetAssemblyTypeName: Game, Assembly-CSharp
-        m_MethodName: OnDropdownCameraChanged
+        m_MethodName: OnDropdownCameraPositionChanged
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2157,8 +2157,6 @@ GameObject:
   - component: {fileID: 330585545}
   - component: {fileID: 330585544}
   - component: {fileID: 330585547}
-  - component: {fileID: 330585549}
-  - component: {fileID: 330585548}
   - component: {fileID: 330585550}
   m_Layer: 0
   m_Name: Main Camera
@@ -2285,53 +2283,6 @@ MonoBehaviour:
     mipBias: 0
     varianceClampScale: 0.9
     contrastAdaptiveSharpening: 0
---- !u!114 &330585548
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330585543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: eaa8dfe2d3d5b874bb9709e8869034e6,
-    type: 3}
-  m_NotificationBehavior: 0
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents: []
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: ActionMapDefault
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
---- !u!114 &330585549
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330585543}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b753a01b1826ace4d84fdaef02735816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveByKeySpeed: 1
-  lookSpeed: 0.0001
-  zoomSpeed: 2
-  dragSpeed: 3
 --- !u!114 &330585550
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3606,12 +3557,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 567b7046f1e3be74bafb5878f1f16370, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dropdownCameraPosition: {fileID: 229186544}
+  dropdownCameraLookAt: {fileID: 951042136}
   dropdownTimeScale: {fileID: 1017586484}
-  dropdownCameraPosition: {fileID: 0}
-  dropdownCameraLookAt: {fileID: 0}
-  toggleCameraPosition: {fileID: 0}
-  toggleCameraLookAt: {fileID: 0}
-  spaceShip: {fileID: 721425587}
+  toggleCameraPosition: {fileID: 554018859}
+  toggleCameraLookAt: {fileID: 1495167757}
   spaceObjects:
   - {fileID: 1455879106}
   - {fileID: 919132148337592837}
@@ -3626,6 +3576,9 @@ MonoBehaviour:
   - {fileID: 432107050}
   - {fileID: 721425587}
   vcamMainCamera: {fileID: 1382702025}
+  camera: {fileID: 330585545}
+  cameraDistance: 2
+  canvas: {fileID: 1176767629}
   pfLabel: {fileID: 4332816311314252373, guid: 7b45fa8d5ecb6b94d9421cf52584ffc1, type: 3}
 --- !u!1 &490910333
 GameObject:
@@ -6240,7 +6193,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 481672428}
         m_TargetAssemblyTypeName: Game, Assembly-CSharp
-        m_MethodName: OnDropdownCameraChanged
+        m_MethodName: OnDropdownCameraLookAtChanged
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6625,8 +6578,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -485.23993, y: 93.431335}
-  m_SizeDelta: {x: -970.4798, y: -186.8625}
+  m_AnchoredPosition: {x: -475, y: 28}
+  m_SizeDelta: {x: -972.1154, y: -96.9055}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1001819181
 MonoBehaviour:
@@ -6760,26 +6713,26 @@ MonoBehaviour:
     m_Options:
     - m_Text: Real-time
       m_Image: {fileID: 0}
-    - m_Text: 1 s = 1 hour
+    - m_Text: 1 hour/s
       m_Image: {fileID: 0}
-    - m_Text: 1 s = 1 day
+    - m_Text: 1 day/s
       m_Image: {fileID: 0}
-    - m_Text: 1 s = 1 month
+    - m_Text: 1 month/s
       m_Image: {fileID: 0}
-    - m_Text: 1 s = 1 year
+    - m_Text: 1 year/s
       m_Image: {fileID: 0}
-    - m_Text: 1 s = 500 year
+    - m_Text: 500 year/s
       m_Image: {fileID: 0}
-    - m_Text: 1 s = 2000 year
+    - m_Text: 2000 year/s
       m_Image: {fileID: 0}
-    - m_Text: 1 s = 10000 year
+    - m_Text: 10000 year/s
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 481672428}
         m_TargetAssemblyTypeName: Game, Assembly-CSharp
-        m_MethodName: OnDropdownTimeScaleChanged
+        m_MethodName: OnDropdownTimeScale
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8478,9 +8431,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveByKeySpeed: 4
-  lookSpeed: 2
+  lookSpeed: 0.1
   zoomSpeed: 2
-  dragSpeed: 3
 --- !u!1 &1393611591
 GameObject:
   m_ObjectHideFlags: 0
