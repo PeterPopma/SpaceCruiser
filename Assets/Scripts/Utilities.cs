@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class Utilities
 {
-    public const float KM_PER_SQUARE = 2785400f;     // planets are drawn 100 times larger to show them
+    public const float KM_PER_SQUARE = 2785400f;
 
     public static float KmToSquares(float km)
     {

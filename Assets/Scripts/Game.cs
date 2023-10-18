@@ -2,6 +2,7 @@ using Cinemachine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,31 +11,27 @@ public class Game : MonoBehaviour
 {
     public static Game Instance;
     
-    [SerializeField] TMP_Dropdown dropdownCameraPosition;
+    [SerializeField] TMP_Dropdown dropdownCameraFollow;
     [SerializeField] TMP_Dropdown dropdownCameraLookAt;
     [SerializeField] TMP_Dropdown dropdownTimeScale;
+    [SerializeField] TMP_Dropdown dropdownSpaceshipSpeed;
+    [SerializeField] TMP_Dropdown dropdownSpaceshipDestination;
+    [SerializeField] TMP_Dropdown dropdownPlanetSize;
     [SerializeField] Toggle toggleCameraPosition;
     [SerializeField] Toggle toggleCameraLookAt;
+    [SerializeField] Toggle toggleTrails;
     [SerializeField] GameObject[] spaceObjects;
-    [SerializeField] CinemachineVirtualCamera vcamMainCamera;
-    [SerializeField] Camera camera;
-    [SerializeField] float cameraDistance = 20f;
     [SerializeField] Canvas canvas;
     [SerializeField] GameObject pfLabel;
-    GameObject cameraPositionObject;
-    GameObject cameraLookAtObject;
+    [SerializeField] Spaceship spaceShip;
+    [SerializeField] TextMeshProUGUI textTime;
+    [SerializeField] GameInput gameInput;
+
     List<GameObject> labels = new List<GameObject>();
 
-    //    float cameraRotationX, cameraRotationY;
-
-    public GameObject CameraPositionObject { get => cameraPositionObject; set => cameraPositionObject = value; }
-    public GameObject CameraLookAtObject { get => cameraLookAtObject; set => cameraLookAtObject = value; }
     public Toggle ToggleCameraLookAt { get => toggleCameraLookAt; set => toggleCameraLookAt = value; }
     public Toggle ToggleCameraPosition { get => toggleCameraPosition; set => toggleCameraPosition = value; }
-//    public float CameraRotationX { get => cameraRotationX; set => cameraRotationX = value; }
-//    public float CameraRotationY { get => cameraRotationY; set => cameraRotationY = value; }
-    public CinemachineVirtualCamera Camera { get => vcamMainCamera; set => vcamMainCamera = value; }
-    public CinemachineVirtualCamera VcamMainCamera { get => vcamMainCamera; set => vcamMainCamera = value; }
+    private float simulationTime;    // in years
 
     void Awake()
     {
@@ -42,8 +39,9 @@ public class Game : MonoBehaviour
 
         foreach (var spaceObject in spaceObjects)
         {
-            dropdownCameraPosition.options.Add(new TMP_Dropdown.OptionData() { text = spaceObject.name });
+            dropdownCameraFollow.options.Add(new TMP_Dropdown.OptionData() { text = spaceObject.name });
             dropdownCameraLookAt.options.Add(new TMP_Dropdown.OptionData() { text = spaceObject.name });
+            dropdownSpaceshipDestination.options.Add(new TMP_Dropdown.OptionData() { text = spaceObject.name });
             GameObject newLabel = Instantiate(pfLabel);
             newLabel.GetComponent<TextMeshProUGUI>().SetText(spaceObject.name);
             newLabel.transform.SetParent(canvas.transform, false);
@@ -54,18 +52,76 @@ public class Game : MonoBehaviour
     private void Start()
     {
         dropdownTimeScale.value = dropdownTimeScale.options.FindIndex(option => option.text == "1 day/s");
-        dropdownCameraPosition.value = dropdownCameraPosition.options.FindIndex(option => option.text == "Spaceship");
+        dropdownCameraFollow.value = dropdownCameraFollow.options.FindIndex(option => option.text == "Earth");
+        dropdownCameraLookAt.value = dropdownCameraLookAt.options.FindIndex(option => option.text == "Earth");
+        simulationTime = 0;
     }
 
-    public void OnDropdownCameraPositionChanged()
+    public void OnDropdownDestinationChanged()
     {
-        cameraLookAtObject = cameraPositionObject = Array.Find(spaceObjects, o => o.name.Equals(dropdownCameraPosition.options[dropdownCameraPosition.value].text));
-        dropdownCameraLookAt.value = dropdownCameraLookAt.options.FindIndex(option => option.text == cameraLookAtObject.name);
+        spaceShip.Destination = Array.Find(spaceObjects, o => o.name.Equals(dropdownSpaceshipDestination.options[dropdownSpaceshipDestination.value].text));
+    }
+
+    public void OnDropdownSpaceshipSpeedChanged()
+    {
+        switch(dropdownSpaceshipSpeed.value)
+        {
+            case 0:
+                spaceShip.Speed = 16900;
+                break;
+            case 1:
+                spaceShip.Speed = 299792458;
+                break;
+        }
+
+    }
+
+    public void OnDropdownCameraFollowChanged()
+    {
+        /* cameraLookAtObject = */
+        gameInput.ChangeFollowObject(Array.Find(spaceObjects, o => o.name.Equals(dropdownCameraFollow.options[dropdownCameraFollow.value].text)));
+//        dropdownCameraLookAt.value = dropdownCameraLookAt.options.FindIndex(option => option.text == cameraLookAtObject.name);
+//        toggleCameraLookAt.isOn = true;
+        toggleCameraPosition.isOn = true;
     }
 
     public void OnDropdownCameraLookAtChanged()
     {
-        cameraLookAtObject = Array.Find(spaceObjects, o => o.name.Equals(dropdownCameraLookAt.options[dropdownCameraLookAt.value].text));
+        gameInput.ChangeLookAtObject(Array.Find(spaceObjects, o => o.name.Equals(dropdownCameraLookAt.options[dropdownCameraLookAt.value].text)));
+        toggleCameraLookAt.isOn = true;
+    }
+
+    public void OnDropdownPlanetSizeChanged()
+    {
+        switch (dropdownPlanetSize.options[dropdownPlanetSize.value].text)
+        {
+            case "100x":
+                UpdatePlanetSize(100);
+                break;
+            case "1x":
+                UpdatePlanetSize(1);
+                break;
+        }
+    }
+
+    private void UpdatePlanetSize(int newSize)
+    {
+        if (newSize == 1 && Settings.planetSize == 100)
+        {
+            foreach (var planet in spaceObjects)
+            {
+                planet.transform.localScale *= 0.01f;
+            }
+            Settings.planetSize = 1;
+        }
+        if (newSize == 100 && Settings.planetSize == 1)
+        {
+            foreach (var planet in spaceObjects)
+            {
+                planet.transform.localScale *= 100f;
+            }
+            Settings.planetSize = 100;
+        }
     }
 
     public void OnDropdownTimeScale()
@@ -80,6 +136,9 @@ public class Game : MonoBehaviour
                 break;
             case "1 day/s":
                 Settings.TimeScale = 0.00273972602739726027397260273973f;
+                break;
+            case "1 week/s":
+                Settings.TimeScale = 0.01917808219178082191780821917811f;
                 break;
             case "1 month/s":
                 Settings.TimeScale = 0.083333f;
@@ -102,15 +161,15 @@ public class Game : MonoBehaviour
         }
     }
 
-    public void OnToggleCameraPositionChanged()
+    public void OnToggleCameraFollowChanged()
     {
         if (!toggleCameraPosition.isOn)
         {
-            cameraPositionObject = null;
+            gameInput.ChangeFollowObject(null);
         }
         else
         {
-            OnDropdownCameraPositionChanged();
+            OnDropdownCameraFollowChanged();
         }
     }
 
@@ -118,19 +177,53 @@ public class Game : MonoBehaviour
     {
         if (!toggleCameraLookAt.isOn)
         {
-            cameraLookAtObject = null;
+            gameInput.ChangeLookAtObject(null);
         }
         else
         {
             OnDropdownCameraLookAtChanged();
         }
     }
+    public void OnToggleTrailsChanged()
+    {
+        if (toggleTrails.isOn)
+        {
+            SetTrailsActive(true);
+        }
+        else
+        {
+            SetTrailsActive(false);
+        }
+    }
+
+    private void SetTrailsActive(bool active)
+    {
+        foreach(GameObject spaceObject in spaceObjects)
+        {
+            if (spaceObject.GetComponent<TrailRenderer>() != null)
+            {
+                spaceObject.GetComponent<TrailRenderer>().enabled = active;
+            }
+        }
+    }
+
+    private string CalculateTime()
+    {
+        DateTime time = DateTime.Now;
+        int yearsPassed = (int)simulationTime;
+        time = time.AddYears(yearsPassed);
+        time = time.AddSeconds((simulationTime-yearsPassed)*365*24*60*60);
+        return time.ToString(CultureInfo.InvariantCulture);
+    }
 
     public void Update()
     {
+        simulationTime += Time.deltaTime * Settings.TimeScale;
+        textTime.text = CalculateTime();
+
         for (int i=0; i < spaceObjects.Length; i++)
         {
-            Vector3 screenPos = camera.WorldToScreenPoint(spaceObjects[i].transform.position);
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(spaceObjects[i].transform.position);
             Vector2 canvasPos;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.GetComponent<RectTransform>(), screenPos, null, out canvasPos);
 
@@ -146,24 +239,4 @@ public class Game : MonoBehaviour
         }
     }
 
-    public void LateUpdate()
-    {
-        if (cameraLookAtObject != null)
-        {
-            vcamMainCamera.transform.rotation = Quaternion.LookRotation(cameraLookAtObject.transform.position - vcamMainCamera.transform.position, Vector3.up);
-        }
-        if (cameraPositionObject != null)
-        {
-            if (CameraLookAtObject != null)
-            {
-                // orbit around object to look at
-                vcamMainCamera.transform.position = CameraLookAtObject.transform.position - vcamMainCamera.transform.forward * cameraDistance;
-            }
-            else
-            {
-                // stay with object but don't face camera to it
-                vcamMainCamera.transform.position = cameraPositionObject.transform.Find("CameraRoot").position;
-            }
-        }
-    }
 }
